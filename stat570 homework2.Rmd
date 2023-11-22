@@ -1,0 +1,211 @@
+---
+title: "STAT570 HW2 Ecenaz Tunç"
+output:
+  html_document:
+    df_print: paged
+date: "2023-11-21"
+---
+
+BOOLEAN OPERATORS
+
+First, two libraries are required for the data sets and functions.
+
+
+```{r}
+library(tidyverse)
+library(babynames)
+```
+
+There are three main boolean operators:
+
+1) AND &
+2) OR |
+3) NOT !
+
+We want words that does not contain any vowels.
+So, this is the code for that.
+
+
+```{r}
+str_view(words, "^[^aeiou]+$")
+```
+
+
+
+Let's break down the components of this regular expression:
+
+The ^ at the beginning, means that it matches any character that is NOT in the specified set. 
+
+^: Anchors in the begging ensures that the pattern starts matching from the start of the string.
+
+[^aeiou]:  We are defining a class using []. 
+In this case, the set is aeiou, which are the vowels. So, [^aeiou] matches any consonant.
+
+ +: By using this, we are sure that the patterns matches one or more consecutive consonants.
+
+$:This ensures that the pattern continues matching until the end of the string.
+
+Putting it all together, ^[^aeiou]+$ makes the output string includes only consonants.
+But you can make this problem a bit easier by flipping the problem around. 
+Instead of looking for words that contain only consonants, we could look for words that don’t contain any vowels:
+
+
+But we can make it easier by excluding the vowels:
+
+
+```{r}
+str_view(words[!str_detect(words, "[aeiou]")])
+```
+
+
+
+This is a useful technique whenever you’re dealing with logical combinations, particularly those involving “and” or “not”. 
+
+For example, imagine if you want to find all words that contain “a” and “b”. 
+There’s no “and” operator built in to regular expressions so we have to tackle it by looking for all words that contain an “a” followed by a “b”, or a “b” followed by an “a”:
+
+EXAMPLE A AND . ALL WORDS THAT CONTAIN A AND B.
+
+
+```{r}
+str_view(words, "a.*b|b.*a")
+```
+
+
+
+#The regular expression a.*b|b.*a is used to find all words that contain both "a" and "b," regardless of the order in which they appear.
+Let's break down the components of this regular expression:
+
+a: Matches the character "a" literally.
+ .*: The . matches any character, and * quantifies it to allow for zero or more occurrences.
+
+b: Matches the character "b" literally.
+
+|: Represents the OR operator.
+
+b.*a: This matches any sequence that starts with "b" and is followed by zero or more characters and then an "a."
+
+Putting it all together, the regular expression a.*b|b.*a can be read as "match a sequence that has 'a' followed by 'b' OR 'b' followed by 'a'."
+
+The str_view function is used to visualize the matches in the specified text.
+From the output you can see that <ab> is highlighted.
+
+
+
+It’s simpler to combine the results of two calls to str_detect():
+
+
+```{r}
+words[str_detect(words, "a") & str_detect(words, "b")]
+```
+
+
+
+What if we wanted to see if there was a word that contains all vowels? If we did it with patterns we’d need to generate 5! (120) different patterns:
+
+```{r}
+words[str_detect(words, "a.*e.*i.*o.*u")]
+# ...
+words[str_detect(words, "u.*o.*i.*e.*a")]
+```
+
+
+
+
+It’s much simpler to combine five calls to str_detect():
+  
+
+we are attempting to find words that contain all vowels ('a', 'e', 'i', 'o', 'u') in a specific order. 
+However, this approach involves generating and checking 120 different patterns, which is highly impractical and not efficient.
+
+
+Here, each line represents a pattern attempting to match a word with all vowels in a specific order. 
+The .* between each vowel allows for any number of characters to appear between the vowels.
+
+
+
+
+
+So, easier way to this is with the boolean 
+
+```{r}
+words[
+  str_detect(words, "a") &
+    str_detect(words, "e") &
+    str_detect(words, "i") &
+    str_detect(words, "o") &
+    str_detect(words, "u")
+]
+```
+
+
+
+EXAMPLES FOR BOOLEAN OPERATORS
+
+Simple example
+
+In this example we can see how and or and not operators are working.
+
+AND operator
+
+
+
+
+```{r}
+x <- c(TRUE, FALSE, TRUE)
+y <- c(FALSE, TRUE, TRUE)
+```
+
+
+
+ Element-wise AND
+
+
+
+```{r}
+result_and <- x & y
+result_and
+
+```
+
+
+ OR operator
+
+
+
+```{r}
+result_or <- x | y
+result_or
+```
+
+
+ NOT operator
+
+
+```{r}
+result_not <- !x
+result_not
+```
+
+
+SECOND EXAMPLE
+
+Create a sample data frame
+
+```{r}
+
+classes <- data.frame(
+  class_Name = c("stat203", "stat204", "stat361", "stat291"),
+  credit = c(3, 5, 4, 4),
+  capacity = c(62, 42, 50, 54)
+
+)
+
+
+# Filter higher credits and capacity
+credit_capacity <- classes[classes$credit >3  & classes$capacity> 50 , ]
+
+credit_capacity
+```
+
+In this example we can filter the data and find the classes that are match with the conditions we give.
